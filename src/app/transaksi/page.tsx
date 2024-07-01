@@ -153,7 +153,6 @@ export default function Home() {
                 <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-800 text-left text-xs font-semibold text-white uppercase tracking-wider">
                   Tanggal Pelunasan
                 </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-800 text-left text-xs font-semibold text-white uppercase tracking-wider"></th>
               </tr>
             </thead>
             <tbody>
@@ -187,17 +186,7 @@ export default function Home() {
                     <td className="text-center px-5 py-5 capitalize border-b border-gray-200 text-sm">
                       {t.tanggal_lunas ? showTanggal(t.tanggal_lunas) : "-"}
                     </td>
-                    <td className="text-center px-5 py-5 capitalize border-b border-gray-200 text-sm">
-                      <button
-                        disabled={t.status}
-                        onClick={() => handleTransaction(t.id)}
-                        className={`text-white font-semibold px-2 py-1 rounded-sm ${
-                          t.status ? "bg-gray-300" : "bg-emerald-500"
-                        }`}
-                      >
-                        {t.status ? "selesai" : "lunas"}
-                      </button>
-                    </td>
+                    
                   </tr>
                 ))
               ) : (
