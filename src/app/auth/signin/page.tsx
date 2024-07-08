@@ -8,6 +8,7 @@ import { FormLogin } from "@/types";
 import { supabase } from "@/utils/supabase/client";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 function Page() {
   const { handleSubmit, register } = useForm<FormLogin>();
@@ -22,6 +23,8 @@ function Page() {
 
     if(signin?.ok){
         router.push('/')
+    }else{
+      toast.error("Username atau Password kamu salah nih")
     }
   }
 
