@@ -1,7 +1,16 @@
 "use client";
+import Receipt from "@/component/PDF/Letter";
+import PaymentReceipt from "@/component/PDF/Letter";
+import Letter from "@/component/PDF/Letter";
 import { exportToExcel, getBulanName, showTanggal } from "@/helper/client";
-import { KodeBayar, SixDigitString, Transaksi } from "@/types";
+import { KodeBayar, Siswa, SixDigitString, Transaksi } from "@/types";
 import { supabase } from "@/utils/supabase/client";
+import {
+  PDFDownloadLink,
+  PDFRenderer,
+  PDFViewer,
+  pdf,
+} from "@react-pdf/renderer";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { useSession } from "next-auth/react";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -10,8 +19,43 @@ import uuid from "react-uuid";
 export default function Home() {
   const [transaksi, setTransaksi] = useState<Transaksi[]>([]);
   const [kode, setKode] = useState<KodeBayar | []>([]);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [nis, setNis] = useState<SixDigitString | null>(null);
   const { status, data: session } = useSession();
+  const [user, setUser] = useState<Siswa | null>(null);
+
+  const data = {
+    noTrans: "KL101600001",
+    nis: "16258",
+    namaSiswa: "TRI BUDI HARYANTO",
+    kelas: "10 - TPMI",
+    tanggal: "10/01/2016",
+    jamCetak: "10:48:03",
+    pembayaran: [
+      {
+        keterangan: "Biaya Penyelenggaraan Pendidikan - AGS 2016/2017",
+        jumlah: "50,000.00",
+      },
+      {
+        keterangan: "Biaya Penyelenggaraan Pendidikan - SEP 2016/2017",
+        jumlah: "50,000.00",
+      },
+      {
+        keterangan: "Biaya Penyelenggaraan Pendidikan - OKT 2016/2017",
+        jumlah: "50,000.00",
+      },
+      {
+        keterangan: "Biaya Penyelenggaraan Pendidikan - NOV 2016/2017",
+        jumlah: "50,000.00",
+      },
+      { keterangan: "Daftar Ulang", jumlah: "975,000.00" },
+    ],
+    total: "1,175,000.00",
+    terbilang: "Satu Juta Seratus Tujuh Puluh Lima Ribu Rupiah",
+    tanggalDiterima: "18 Oktober 2016",
+    signatoryName: "Widiya Nanda Gardhea Putri, S.Pd",
+    signatoryTitle: "Yang Menerima",
+  };
 
   const handleTransaction = async (id: Transaksi["id"]) => {
     const waktuSekarang = new Date().toISOString();
@@ -32,11 +76,20 @@ export default function Home() {
     const { data }: PostgrestSingleResponse<Transaksi[]> = await supabase
       .from("transaksi")
       .select("*")
-      .eq("nis", nis);
+      .eq("nis", nis)
+      .order("created_at", {ascending: true})
+    
     // @ts-ignore
 
     if (data?.length) {
       setTransaksi(data);
+
+      if (user) {
+        const blob = await pdf(
+          <PaymentReceipt data={data} user={user} />
+        ).toBlob();
+        setPdfUrl(URL.createObjectURL(blob));
+      }
     } else {
       setTransaksi([]);
     }
@@ -45,11 +98,27 @@ export default function Home() {
   const getTransaksi = async () => {
     const { data }: PostgrestSingleResponse<Transaksi[]> = await supabase
       .from("transaksi")
-      .select("*");
+      .select("*")
+      .order("created_at", {ascending: true})
+
     // @ts-ignore
 
     if (data?.length) {
       setTransaksi(data);
+
+      // @ts-ignore
+      const dataUser: Siswa = {
+        nis: data[0].nis,
+        nama: data[0].nama,
+        kelas: data[0].kelas,
+      };
+
+      setUser(dataUser);
+
+      const blob = await pdf(
+        <PaymentReceipt data={data} user={dataUser} />
+      ).toBlob();
+      setPdfUrl(URL.createObjectURL(blob));
     } else {
       setTransaksi([]);
     }
@@ -71,6 +140,8 @@ export default function Home() {
     // @ts-ignore
     exportToExcel(formattedData, "Laporan_Transaksi");
   };
+
+ 
 
   useEffect(() => {
     getTransaksi();
@@ -114,7 +185,9 @@ export default function Home() {
           onClick={handleExport}
           disabled={transaksi.length == 0}
           className={`px-2 pl-3 py-3 w-full  my-3 text-white font-bold rounded-md 
-                          ${!transaksi.length ? "bg-gray-300" : "bg-emerald-500"}
+                          ${
+                            !transaksi.length ? "bg-gray-300" : "bg-emerald-500"
+                          }
             `}
         >
           Cetak Laporan Transaksi
@@ -186,7 +259,6 @@ export default function Home() {
                     <td className="text-center px-5 py-5 capitalize border-b border-gray-200 text-sm">
                       {t.tanggal_lunas ? showTanggal(t.tanggal_lunas) : "-"}
                     </td>
-                    
                   </tr>
                 ))
               ) : (
@@ -202,6 +274,23 @@ export default function Home() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div>
+        <h1>Payment Receipt</h1>
+        {pdfUrl ? (
+          <iframe src={pdfUrl} width="100%" height="800px" />
+        ) : (
+          "Generating document..."
+        )}
+        {/* <h1>Payment Receipt</h1>
+    <PDFViewer>
+      <PaymentReceipt data={data} />
+    </PDFViewer> */}
+        {/* <PDFDownloadLink document={<Letter />} fileName="payment_receipt.pdf">
+      {({ loading }) => (loading ? 'Loading document...' : 'Download PDF')}
+    </PDFDownloadLink> */}
+        {/* <Receipt /> */}
       </div>
     </div>
   );
