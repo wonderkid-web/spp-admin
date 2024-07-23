@@ -140,11 +140,11 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ data, user }) => (
       <View style={styles.details}>
         <View style={styles.detailsRow}>
           <Text>No Trans: {uuid()}</Text>
-          <Text>NIS: {user?.nis}</Text>
+          <Text>NIS: {data[0]?.nis}</Text>
         </View>
         <View style={styles.detailsRow}>
-          <Text>Nama Siswa: {user?.nama}</Text>
-          <Text>Kelas: {user?.kelas}</Text>
+          <Text>Nama Siswa: {data[0]?.nama}</Text>
+          <Text>Kelas: {data[0]?.kelas}</Text>
         </View>
         <View style={styles.detailsRow}>
           <Text>Tanggal: {showTanggal(date)}</Text>
@@ -171,7 +171,7 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ data, user }) => (
       {/* <Text>Terbilang: {data.terbilang}</Text> */}
       <Text style={styles.footer}>Tembung, {showTanggal(date)}</Text>
       <Text style={styles.signatory}>Yang Menerima,</Text>
-      <Text style={styles.signatoryName}>Muhammad Wahyu Ramadhan</Text>
+      <Text style={styles.signatoryName}>Abdul Halim Simbolon, S. Sos</Text>
       {/* <Text style={styles.signatoryName}>{data.signatoryTitle}</Text> */}
       <Text style={styles.note}>
         Catatan:

@@ -24,39 +24,6 @@ export default function Home() {
   const { status, data: session } = useSession();
   const [user, setUser] = useState<Siswa | null>(null);
 
-  const data = {
-    noTrans: "KL101600001",
-    nis: "16258",
-    namaSiswa: "TRI BUDI HARYANTO",
-    kelas: "10 - TPMI",
-    tanggal: "10/01/2016",
-    jamCetak: "10:48:03",
-    pembayaran: [
-      {
-        keterangan: "Biaya Penyelenggaraan Pendidikan - AGS 2016/2017",
-        jumlah: "50,000.00",
-      },
-      {
-        keterangan: "Biaya Penyelenggaraan Pendidikan - SEP 2016/2017",
-        jumlah: "50,000.00",
-      },
-      {
-        keterangan: "Biaya Penyelenggaraan Pendidikan - OKT 2016/2017",
-        jumlah: "50,000.00",
-      },
-      {
-        keterangan: "Biaya Penyelenggaraan Pendidikan - NOV 2016/2017",
-        jumlah: "50,000.00",
-      },
-      { keterangan: "Daftar Ulang", jumlah: "975,000.00" },
-    ],
-    total: "1,175,000.00",
-    terbilang: "Satu Juta Seratus Tujuh Puluh Lima Ribu Rupiah",
-    tanggalDiterima: "18 Oktober 2016",
-    signatoryName: "Widiya Nanda Gardhea Putri, S.Pd",
-    signatoryTitle: "Yang Menerima",
-  };
-
   const handleTransaction = async (id: Transaksi["id"]) => {
     const waktuSekarang = new Date().toISOString();
     await supabase
@@ -85,6 +52,7 @@ export default function Home() {
       setTransaksi(data);
 
       if (user) {
+        
         const blob = await pdf(
           <PaymentReceipt data={data} user={user} />
         ).toBlob();
@@ -276,7 +244,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div>
+      <div className={!nis ? 'invisible' : 'visible'}>
         <h1>Payment Receipt</h1>
         {pdfUrl ? (
           <iframe src={pdfUrl} width="100%" height="800px" />
