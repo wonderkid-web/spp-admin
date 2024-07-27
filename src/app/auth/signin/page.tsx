@@ -12,21 +12,26 @@ import { toast } from "sonner";
 
 function Page() {
   const { handleSubmit, register } = useForm<FormLogin>();
-  const router = useRouter()
+  const router = useRouter();
 
-  const onSubmit:SubmitHandler<FormLogin> = async (form) =>{
-    
-    const signin = await signIn("credentials", {
+  const onSubmit: SubmitHandler<FormLogin> = async (form) => {
+    toast.promise(
+      signIn("credentials", {
         ...form,
         redirect: false,
-    })
-
-    if(signin?.ok){
-        router.push('/')
-    }else{
-      toast.error("Username atau Password kamu salah nih")
-    }
-  }
+      }),
+      {
+        loading: "Proses Autentikasi...",
+        success: (data) => {
+          if (data?.ok) {
+            router.push("/");
+          } 
+          return "Berhasil Masuk";
+        },
+        error: "Username atau Password kamu salah nih",
+      }
+    );
+  };
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -44,7 +49,11 @@ function Page() {
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Login Ke Portal Admin Pembayaran
             </h1>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6" action="#">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4 md:space-y-6"
+              action="#"
+            >
               <div>
                 <label
                   htmlFor="nis"

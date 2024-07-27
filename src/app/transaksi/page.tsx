@@ -44,15 +44,14 @@ export default function Home() {
       .from("transaksi")
       .select("*")
       .eq("nis", nis)
-      .order("created_at", {ascending: true})
-    
+      .order("created_at", { ascending: true });
+
     // @ts-ignore
 
     if (data?.length) {
       setTransaksi(data);
 
       if (user) {
-        
         const blob = await pdf(
           <PaymentReceipt data={data} user={user} />
         ).toBlob();
@@ -67,7 +66,7 @@ export default function Home() {
     const { data }: PostgrestSingleResponse<Transaksi[]> = await supabase
       .from("transaksi")
       .select("*")
-      .order("created_at", {ascending: true})
+      .order("created_at", { ascending: true });
 
     // @ts-ignore
 
@@ -109,8 +108,6 @@ export default function Home() {
     exportToExcel(formattedData, "Laporan_Transaksi");
   };
 
- 
-
   useEffect(() => {
     getTransaksi();
   }, []);
@@ -135,7 +132,7 @@ export default function Home() {
           <div className="flex gap-2">
             <input
               type="number"
-              placeholder="NIS"
+              placeholder="Masukan NIS Siswa yang ingin di cetak menjadi PDF"
               className="px-2 pl-3 py-1 w-4/5 rounded-md"
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setNis(e.currentTarget.value as SixDigitString)
@@ -149,17 +146,6 @@ export default function Home() {
             </button>
           </div>
         </div>
-        <button
-          onClick={handleExport}
-          disabled={transaksi.length == 0}
-          className={`px-2 pl-3 py-3 w-full  my-3 text-white font-bold rounded-md 
-                          ${
-                            !transaksi.length ? "bg-gray-300" : "bg-emerald-500"
-                          }
-            `}
-        >
-          Cetak Laporan Transaksi
-        </button>
 
         {/* Payment List Section */}
 
@@ -244,13 +230,46 @@ export default function Home() {
         </div>
       </div>
 
-      <div className={!nis ? 'invisible' : 'visible'}>
-        <h1>Payment Receipt</h1>
+      <div className={!nis ? "invisible" : "visible"}>
+        <h1 className="text-2xl text-center my-5 bg-sky-500 rounded-md text-white font-semibold w-fit px-2 py-3 mx-auto">
+          Cetak Transaksi
+        </h1>
+
         {pdfUrl ? (
-          <iframe src={pdfUrl} width="100%" height="800px" />
+          <>
+            <button
+              onClick={handleExport}
+              disabled={transaksi.length == 0}
+              className={`px-2 pl-3 py-3 w-full  my-3 text-white font-bold rounded-md 
+                          ${
+                            !transaksi.length ? "bg-gray-300" : "bg-emerald-500"
+                          }
+            `}
+            >
+              Cetak Laporan Transaksi {"(Excel)"}
+            </button>
+            {/* <PDFDownloadLink
+              document={<iframe src={pdfUrl} width="100%" height="800px" />}
+              fileName="event.pdf"
+            >
+              {({ blob, url, loading, error }) =>
+                loading ? (
+                  "Loading document..."
+                ) : (
+                  <p
+                    className={`px-2 pl-3 py-3 w-full  my-3 text-white font-bold rounded-md bg-emerald-500 text-center`}
+                  >
+                    Cetak Laporan Transaksi {"(PDF)"}
+                  </p>
+                )
+              }
+            </PDFDownloadLink> */}
+            <iframe src={pdfUrl} width="100%" height="800px" />
+          </>
         ) : (
           "Generating document..."
         )}
+
         {/* <h1>Payment Receipt</h1>
     <PDFViewer>
       <PaymentReceipt data={data} />

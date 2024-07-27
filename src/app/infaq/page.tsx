@@ -159,7 +159,7 @@ export default function Home() {
                         {showTanggal(t.created_at)}
                       </td>
                       <td className="text-center px-5 py-5 capitalize border-b border-gray-200 text-sm">
-                        {t.status ? "Lunas" : "Menunggu"}
+                        {t.status ? "Sudah Dibayar" : "Belum dibayar"}
                       </td>
                       <td className="text-center px-5 py-5 capitalize border-b border-gray-200 text-sm">
                         {t.tanggal_lunas ? showTanggal(t.tanggal_lunas) : "-"}
