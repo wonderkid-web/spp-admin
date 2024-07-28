@@ -169,8 +169,8 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ data, user }) => (
 
       <Text style={styles.total}>Grand Total: {formatterCurrency(countLunasTrue(data) * 80000)}</Text>
       {/* <Text>Terbilang: {data.terbilang}</Text> */}
-      <Text style={styles.footer}>Tembung, {showTanggal(date)}</Text>
-      <Text style={styles.signatory}>Yang Menerima,</Text>
+      <Text style={styles.footer}>Lubuk Pakam, {showTanggal(date)}</Text>
+      <Text style={styles.signatory}>Diketahui,</Text>
       <Text style={styles.signatoryName}>Abdul Halim Simbolon,S.Sos.I.</Text>
       {/* <Text style={styles.signatoryName}>{data.signatoryTitle}</Text> */}
       <Text style={styles.note}>
