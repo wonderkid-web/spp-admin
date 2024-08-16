@@ -3,6 +3,7 @@ import Receipt from "@/component/PDF/Letter";
 import PaymentReceipt from "@/component/PDF/Letter";
 import Letter from "@/component/PDF/Letter";
 import { exportToExcel, getBulanName, showTanggal } from "@/helper/client";
+import { months } from "@/static";
 import { KodeBayar, Siswa, SixDigitString, Transaksi } from "@/types";
 import { supabase } from "@/utils/supabase/client";
 import {
@@ -23,6 +24,7 @@ export default function Home() {
   const [nis, setNis] = useState<SixDigitString | null>(null);
   const { status, data: session } = useSession();
   const [user, setUser] = useState<Siswa | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState(undefined);
 
   const handleTransaction = async (id: Transaksi["id"]) => {
     const waktuSekarang = new Date().toISOString();
@@ -40,6 +42,7 @@ export default function Home() {
   };
 
   const cariSiswa = async () => {
+    let filtered;
     const { data }: PostgrestSingleResponse<Transaksi[]> = await supabase
       .from("transaksi")
       .select("*")
@@ -49,13 +52,27 @@ export default function Home() {
     // @ts-ignore
 
     if (data?.length) {
-      setTransaksi(data);
-
-      if (user) {
-        const blob = await pdf(
-          <PaymentReceipt data={data} user={user} />
-        ).toBlob();
-        setPdfUrl(URL.createObjectURL(blob));
+      if (selectedPeriod) {
+        filtered = data.filter((t) =>
+          selectedPeriod === undefined
+            ? t // Now, all transactions pass the filter when undefined
+            : getBulanName(t.kode).toLowerCase() === selectedPeriod
+        );
+        setTransaksi(filtered);
+        if (user) {
+          const blob = await pdf(
+            <PaymentReceipt data={filtered} user={user} />
+          ).toBlob();
+          setPdfUrl(URL.createObjectURL(blob));
+        }
+      } else {
+        setTransaksi(data);
+        if (user) {
+          const blob = await pdf(
+            <PaymentReceipt data={data} user={user} />
+          ).toBlob();
+          setPdfUrl(URL.createObjectURL(blob));
+        }
       }
     } else {
       setTransaksi([]);
@@ -92,7 +109,7 @@ export default function Home() {
   };
 
   const handleExport = () => {
-    const formattedData = transaksi.map((t, i) => ({
+    const formattedData = transaksi?.map((t, i) => ({
       No: i + 1,
       Nama: t.nama,
       NIS: t.nis,
@@ -110,7 +127,7 @@ export default function Home() {
 
   useEffect(() => {
     getTransaksi();
-  }, []);
+  }, [selectedPeriod]);
 
   if (status == "loading" && kode)
     return <h1 className="text-center mt-48 text-2xl">Loading...</h1>;
@@ -146,6 +163,13 @@ export default function Home() {
             </button>
           </div>
         </div>
+
+        <PeriodeSelect
+          selectedPeriod={selectedPeriod}
+          setSelectedPeriod={setSelectedPeriod}
+          setTransaksi={setTransaksi}
+          transaksi={transaksi}
+        />
 
         {/* Payment List Section */}
 
@@ -183,48 +207,56 @@ export default function Home() {
               </tr>
             </thead>
             <tbody>
-              {transaksi.length ? (
-                transaksi.map((t, i) => (
-                  <tr key={uuid()} className="bg-gray-100">
-                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                      {i + 1}
-                    </td>
-                    <td className="capitalize px-5 py-5 border-b border-gray-200 text-sm">
-                      {t.nama}
-                    </td>
-                    <td className="capitalize px-5 py-5 border-b border-gray-200 text-sm">
-                      {t.nis}
-                    </td>
-                    <td className="capitalize text-center px-5 py-5 border-b border-gray-200 text-sm">
-                      {+t.kode < 7 ? "1" : "2"}
-                    </td>
-                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                      {getBulanName(t.kode)}
-                    </td>
-                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                      Rp. 80.000
-                    </td>
-                    <td className="px-5 py-5 capitalize border-b text-center border-gray-200 text-sm">
-                      {showTanggal(t.created_at)}
-                    </td>
-                    <td className="text-center px-5 py-5 capitalize border-b border-gray-200 text-sm">
-                      {t.status ? "Lunas" : "Menunggu"}
-                    </td>
-                    <td className="text-center px-5 py-5 capitalize border-b border-gray-200 text-sm">
-                      {t.tanggal_lunas ? showTanggal(t.tanggal_lunas) : "-"}
+              <pre>{/* {JSON.stringify(transaksi, null, 2)} */}</pre>
+              {
+                // .filter((t) =>
+                //   selectedPeriod === undefined
+                //     ? t // Now, all transactions pass the filter when undefined
+                //     : getBulanName(t.kode).toLowerCase() === selectedPeriod
+                // )
+                transaksi?.length ? (
+                  transaksi.map((t, i) => (
+                    <tr key={uuid()} className="bg-gray-100">
+                      <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                        {i + 1}
+                      </td>
+                      <td className="capitalize px-5 py-5 border-b border-gray-200 text-sm">
+                        {t.nama}
+                      </td>
+                      <td className="capitalize px-5 py-5 border-b border-gray-200 text-sm">
+                        {t.nis}
+                      </td>
+                      <td className="capitalize text-center px-5 py-5 border-b border-gray-200 text-sm">
+                        {+t.kode < 7 ? "1" : "2"}
+                      </td>
+                      <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                        {getBulanName(t.kode)}
+                      </td>
+                      <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                        Rp. 80.000
+                      </td>
+                      <td className="px-5 py-5 capitalize border-b text-center border-gray-200 text-sm">
+                        {showTanggal(t.created_at)}
+                      </td>
+                      <td className="text-center px-5 py-5 capitalize border-b border-gray-200 text-sm">
+                        {t.status ? "Lunas" : "Menunggu"}
+                      </td>
+                      <td className="text-center px-5 py-5 capitalize border-b border-gray-200 text-sm">
+                        {t.tanggal_lunas ? showTanggal(t.tanggal_lunas) : "-"}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="bg-gray-100">
+                    <td
+                      colSpan={10}
+                      className="text-gray-600 text-2xl text-center px-5 py-5 border-b border-gray-200"
+                    >
+                      Data Kosong
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr className="bg-gray-100">
-                  <td
-                    colSpan={10}
-                    className="text-gray-600 text-2xl text-center px-5 py-5 border-b border-gray-200"
-                  >
-                    Data Kosong
-                  </td>
-                </tr>
-              )}
+                )
+              }
             </tbody>
           </table>
         </div>
@@ -239,10 +271,12 @@ export default function Home() {
           <>
             <button
               onClick={handleExport}
-              disabled={transaksi.length == 0}
+              disabled={transaksi?.length == 0}
               className={`px-2 pl-3 py-3 w-full  my-3 text-white font-bold rounded-md 
                           ${
-                            !transaksi.length ? "bg-gray-300" : "bg-emerald-500"
+                            !transaksi?.length
+                              ? "bg-gray-300"
+                              : "bg-emerald-500"
                           }
             `}
             >
@@ -282,3 +316,32 @@ export default function Home() {
     </div>
   );
 }
+
+const PeriodeSelect = ({
+  selectedPeriod,
+  setSelectedPeriod,
+  setTransaksi,
+  transaksi,
+}: any) => {
+  return (
+    <div className="select mb-4">
+      <label htmlFor="periode" className="block mb-2">
+        Pilih Periode Pembayaran:
+      </label>
+      <select
+        name="periode"
+        id="periode"
+        className="border border-gray-300 rounded px-4 py-2 w-full focus:outline-none focus:border-blue-500"
+        value={selectedPeriod}
+        onChange={(e) => setSelectedPeriod(e.currentTarget.value)}
+      >
+        <option value={undefined}>-- Pilih Periode --</option>
+        {months.map((month, index) => (
+          <option key={index} value={month.toLowerCase()}>
+            {month}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
