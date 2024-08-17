@@ -231,19 +231,19 @@ export default function Home() {
                     <td className="px-5 py-5 border-b border-gray-200 text-sm">
                       {checkStatus(s) ? (
                         <p className="px-2 py-1 rounded-md bg-green-500 font-bold text-white w-fit mx-auto">
-                          {/* lunas */} ✅
+                          lunas ✅
                         </p>
                       ) : (
                         <p
                           disabled={true}
                           className={`${
                             checkProgres(s) === "Sedang Diproses Admin"
-                              ? "bg-gray-400 text-white"
-                              : "bg-red-200 text-white focus:outline-none"
-                          } px-4 py-2 mx-auto  rounded flex flex-col items-center w-fit`}
+                              ? "bg-orange-400 text-white"
+                              : "bg-red-500 text-white focus:outline-none"
+                          } px-4 py-2 mx-auto  rounded flex flex-col items-center w-fit cursor-default`}
                         >
-                          {checkProgres(s) === "Belum Lunas" && "⛔"} 
-                          {checkProgres(s) === "Sedang Diproses Admin" && "⌛"} 
+                          {checkProgres(s) === "Belum Lunas" && "belum lunas"} 
+                          {checkProgres(s) === "Sedang Diproses Admin" && "sedang di proses"} 
                         </p>
                       )}
                     </td>
