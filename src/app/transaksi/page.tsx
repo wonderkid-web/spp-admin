@@ -265,9 +265,9 @@ export default function Home() {
       </div>
 
       <div className={!nis ? "invisible" : "visible"}>
-        <h1 className="text-2xl text-center my-5 bg-sky-500 rounded-md text-white font-semibold w-fit px-2 py-3 mx-auto">
+        {/* <h1 className="text-2xl text-center my-5 bg-sky-500 rounded-md text-white font-semibold w-fit px-2 py-3 mx-auto">
           Cetak Transaksi
-        </h1>
+        </h1> */}
 
         {pdfUrl ? (
           <>
