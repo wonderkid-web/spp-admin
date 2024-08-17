@@ -150,7 +150,7 @@ export default function Home() {
                         {+t.kode < 7 ? "1" : "2"}
                       </td>
                       <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                        {getBulanName(t.kode)}
+                        {getBulanName(t.kode as string)}
                       </td>
                       <td className="px-5 py-5 border-b border-gray-200 text-sm">
                         Rp. 80.000

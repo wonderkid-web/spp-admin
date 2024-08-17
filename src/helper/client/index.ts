@@ -30,14 +30,18 @@ export const getBulanName = (kode: string): string => {
   return bulanMap[kode] || "Invalid code";
 };
 
-export const showTanggal = (tanggal: string) => {
-  const date = parseISO(tanggal);
+export const showTanggal = (tanggal: string|number|null) => {
+  if(tanggal !== null){
+    const date = parseISO(tanggal as string);
 
-  const formattedDate = format(date, "EEEE, yyyy-MM-dd HH:mm", {
-    locale: id,
-  });
-
-  return formattedDate;
+    const formattedDate = format(date, "EEEE, yyyy-MM-dd HH:mm", {
+      locale: id,
+    });
+  
+    return formattedDate;
+  }else{
+    return "-"
+  }
 };
 
 export const exportToExcel = (data: Transaksi[], fileName: string) => {

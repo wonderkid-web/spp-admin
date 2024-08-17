@@ -52,11 +52,13 @@ export default function Home() {
     // @ts-ignore
 
     if (data?.length) {
+      console.log(data)
+
       if (selectedPeriod) {
         filtered = data.filter((t) =>
           selectedPeriod === undefined
             ? t // Now, all transactions pass the filter when undefined
-            : getBulanName(t.kode).toLowerCase() === selectedPeriod
+            : getBulanName(t.kode as string).toLowerCase() === selectedPeriod
         );
         setTransaksi(filtered);
         if (user) {
@@ -114,7 +116,7 @@ export default function Home() {
       Nama: t.nama,
       NIS: t.nis,
       Semester: +t.kode < 7 ? "1" : "2",
-      Bulan: getBulanName(t.kode),
+      Bulan: getBulanName(t.kode as string),
       Jumlah: "Rp. 80.000",
       Tanggal: showTanggal(t.created_at),
       "Status Pembayaran": t.status ? "Lunas" : "Menunggu",
@@ -164,12 +166,12 @@ export default function Home() {
           </div>
         </div>
 
-        <PeriodeSelect
+        {/* <PeriodeSelect
           selectedPeriod={selectedPeriod}
           setSelectedPeriod={setSelectedPeriod}
           setTransaksi={setTransaksi}
           transaksi={transaksi}
-        />
+        /> */}
 
         {/* Payment List Section */}
 
@@ -230,7 +232,7 @@ export default function Home() {
                         {+t.kode < 7 ? "1" : "2"}
                       </td>
                       <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                        {getBulanName(t.kode)}
+                        {getBulanName(t.kode as string)}
                       </td>
                       <td className="px-5 py-5 border-b border-gray-200 text-sm">
                         Rp. 80.000
